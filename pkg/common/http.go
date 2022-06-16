@@ -85,3 +85,35 @@ func SendEmptyHttpResponse(
 	responseWriter.WriteHeader(statusCode)
 	json.NewEncoder(responseWriter).Encode(responseData)
 }
+
+func RecoverHandler(
+	next http.HandlerFunc,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				logger.Panic(err)
+				serverErr := InternalServerError()
+				SendHttpError(r.Context(), w, serverErr)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	}
+}
+
+func AuthenticateHandler(
+	next http.HandlerFunc,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		//TODO: Add authentication logic
+		next.ServeHTTP(w, r)
+	}
+}
+
+func HttpRequestHandler(
+	next http.HandlerFunc,
+) http.HandlerFunc {
+	next = AuthenticateHandler(next)
+	next = RecoverHandler(next)
+	return next
+}
