@@ -17,16 +17,17 @@ type WorkerShiftDTO struct {
 	ID       SqlID
 	WorkerID SqlID
 	ShiftID  SqlID
+	Date     int64
 	Status   EntityStatus
 }
 
 type UpdateWorkerShiftDTO struct {
+	Date    int64
 	ShiftID SqlID
 }
 
 type ShiftDTO struct {
 	ID            SqlID
-	DateTimestamp int64
 	FromTimestamp int64
 	ToTimestamp   int64
 	Status        EntityStatus

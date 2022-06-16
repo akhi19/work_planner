@@ -97,7 +97,6 @@ func (adaptor *WorkerAdaptor) GetWorkers(
 	queryStatement := `
     SELECT id, name, email, phone, status FROM @Table WHERE status = @Status;
    `
-
 	query, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
 		sql.Named("Table", workerDetailsTableName),

@@ -7,15 +7,18 @@ import (
 type RepositoryAdaptor struct {
 	workerContainer      repository.WorkerContainer
 	workerShiftContainer repository.WorkerShiftContainer
+	shiftContainer       repository.ShiftContainer
 }
 
 func NewRepositoryAdaptor(
 	workerContainer repository.WorkerContainer,
 	workerShiftContainer repository.WorkerShiftContainer,
+	shiftContainer repository.ShiftContainer,
 ) *RepositoryAdaptor {
 	return &RepositoryAdaptor{
 		workerContainer:      workerContainer,
 		workerShiftContainer: workerShiftContainer,
+		shiftContainer:       shiftContainer,
 	}
 }
 
@@ -25,4 +28,8 @@ func (adaptor *RepositoryAdaptor) WorkerContainer() repository.WorkerContainer {
 
 func (adaptor *RepositoryAdaptor) WorkerShiftContainer() repository.WorkerShiftContainer {
 	return adaptor.workerShiftContainer
+}
+
+func (adaptor *RepositoryAdaptor) ShiftContainer() repository.ShiftContainer {
+	return adaptor.shiftContainer
 }

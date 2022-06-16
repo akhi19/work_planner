@@ -28,7 +28,7 @@ func (adaptor *WorkerShiftAdaptor) Insert(
 	shiftModel models.WorkerShiftModel,
 ) (*int64, error) {
 	queryStatement := `
-    INSERT INTO @Table(worker_id, shift_id, status) VALUES (@WorkerID, @ShiftID, @Status);
+    INSERT INTO @Table(worker_id, shift_id, date, status) VALUES (@WorkerID, @ShiftID, @Date, @Status);
     select isNull(SCOPE_IDENTITY(), -1);
    `
 
@@ -42,6 +42,7 @@ func (adaptor *WorkerShiftAdaptor) Insert(
 		sql.Named("Table", workerShiftDetailsTableName),
 		sql.Named("WorkerID", shiftModel.WorkerID),
 		sql.Named("ShiftID", shiftModel.ShiftID),
+		sql.Named("Date", shiftModel.Date),
 		sql.Named("Status", shiftModel.Status),
 	)
 
@@ -60,13 +61,14 @@ func (adaptor *WorkerShiftAdaptor) Update(
 	updateModel models.UpdateWorkerShiftModel,
 ) error {
 	queryStatement := `
-    UPDATE @Table SET shift_id = @ShiftID WHERE id = @ID;
+    UPDATE @Table SET shift_id = @ShiftID, date = @Date WHERE id = @ID;
    `
 
 	_, err := adaptor.sqlHandler.ExecContext(ctx,
 		queryStatement,
 		sql.Named("Table", workerShiftDetailsTableName),
 		sql.Named("ShiftID", updateModel.ShiftID),
+		sql.Named("Date", updateModel.Date),
 		sql.Named("ID", id),
 	)
 	return err
@@ -89,6 +91,40 @@ func (adaptor *WorkerShiftAdaptor) Delete(
 	return err
 }
 
+func (adaptor *WorkerShiftAdaptor) DeleteUsingWorkerID(
+	ctx context.Context,
+	workerID domain.SqlID,
+) error {
+	queryStatement := `
+    UPDATE @Table SET status = @Status WHERE worker_id = @ID;
+   `
+
+	_, err := adaptor.sqlHandler.ExecContext(ctx,
+		queryStatement,
+		sql.Named("Table", workerShiftDetailsTableName),
+		sql.Named("Status", domain.EntityStatusInactive),
+		sql.Named("ID", workerID),
+	)
+	return err
+}
+
+func (adaptor *WorkerShiftAdaptor) DeleteUsingShiftID(
+	ctx context.Context,
+	shiftID domain.SqlID,
+) error {
+	queryStatement := `
+    UPDATE @Table SET status = @Status WHERE shift_id = @ID;
+   `
+
+	_, err := adaptor.sqlHandler.ExecContext(ctx,
+		queryStatement,
+		sql.Named("Table", workerShiftDetailsTableName),
+		sql.Named("Status", domain.EntityStatusInactive),
+		sql.Named("ID", shiftID),
+	)
+	return err
+}
+
 func (adaptor *WorkerShiftAdaptor) GetWorkersOccupied(
 	ctx context.Context,
 	date int64,
@@ -97,7 +133,7 @@ func (adaptor *WorkerShiftAdaptor) GetWorkersOccupied(
     SELECT t2.id, t2.name, t2.email, t2.phone FROM @Table AS t1 
 	INNER JOIN
 	@WorkerTable AS t2
-	ON t1.shift_id  IN (SELECT shift_id FROM @ShiftTable WHERE date = @Date AND status = @Status) 
+	ON t1.date = @Date
 	AND t1.status = @Status AND t2.Status = @Status AND t1.worker_id = t2.id;
    `
 
@@ -133,7 +169,7 @@ func (adaptor *WorkerShiftAdaptor) GetFreeWorkers(
     SELECT t2.id, t2.name, t2.email, t2.phone FROM @Table AS t1 
 	RIGHT JOIN
 	@WorkerTable AS t2
-	ON t1.shift_id IN (SELECT shift_id FROM @ShiftTable WHERE date = @Date AND status = @Status) 
+	ON t1.date = @Date
 	AND t1.Status = @Status AND t2.Status = @Status AND t1.worker_id = t2.id
 	WHERE t1.id IS NULL;
    `
@@ -160,4 +196,32 @@ func (adaptor *WorkerShiftAdaptor) GetFreeWorkers(
 		workerDetails = append(workerDetails, workerDetail)
 	}
 	return workerDetails, nil
+}
+
+func (adaptor *WorkerShiftAdaptor) GetWorkerFromShift(
+	ctx context.Context,
+	workerID domain.SqlID,
+	date int64,
+) (*domain.SqlID, error) {
+	queryStatement := `
+    SELECT id FROM @Table WHERE date = @Date AND worker_id = @WorkerID AND status = @Status;
+   `
+
+	query, err := adaptor.sqlHandler.QueryContext(ctx,
+		queryStatement,
+		sql.Named("Table", shiftDetailsTableName),
+		sql.Named("WorkerID", workerID),
+		sql.Named("Date", date),
+		sql.Named("Status", domain.EntityStatusActive),
+	)
+	if err != nil {
+		return nil, err
+	}
+	var id domain.SqlID
+	defer query.Close()
+	err = query.Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
 }

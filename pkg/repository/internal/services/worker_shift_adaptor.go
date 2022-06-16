@@ -66,6 +66,26 @@ func (service *WorkerShiftService) Delete(
 	)
 }
 
+func (service *WorkerShiftService) DeleteUsingWorkerID(
+	ctx context.Context,
+	workerID domain.SqlID,
+) error {
+	return service.adaptor.DeleteUsingWorkerID(
+		ctx,
+		workerID,
+	)
+}
+
+func (service *WorkerShiftService) DeleteUsingShiftID(
+	ctx context.Context,
+	shiftID domain.SqlID,
+) error {
+	return service.adaptor.DeleteUsingWorkerID(
+		ctx,
+		shiftID,
+	)
+}
+
 func (service *WorkerShiftService) GetFreeWorkers(
 	ctx context.Context,
 	date int64,
@@ -100,4 +120,20 @@ func (service *WorkerShiftService) GetWorkersOccupied(
 		workerDTOs[i] = worker.ToWorkerDTO()
 	}
 	return workerDTOs, nil
+}
+
+func (service *WorkerShiftService) GetWorkerFromShift(
+	ctx context.Context,
+	workerID domain.SqlID,
+	date int64,
+) (*domain.SqlID, error) {
+	id, err := service.adaptor.GetWorkerFromShift(
+		ctx,
+		workerID,
+		date,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return id, nil
 }

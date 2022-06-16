@@ -1,8 +1,7 @@
 package configs
 
-import "os"
-
 type SqlConfig struct {
+	Host     string
 	User     string
 	Password string
 	Port     string
@@ -21,10 +20,11 @@ func init() {
 	config = Configuration{
 		Port: "8080",
 		SqlConfig: SqlConfig{
-			User:     os.Getenv("MSSQL_DB_USER"),
-			Password: os.Getenv("MSSQL_DB_PASSWORD"),
-			Port:     os.Getenv("MSSQL_DB_PORT"),
-			Database: os.Getenv("MSSQL_DB_NAME"),
+			Host:     "localhost",
+			User:     "test",
+			Password: "123",
+			Port:     "55000",
+			Database: "planner",
 		},
 		LogFilePath: "./log",
 	}

@@ -28,7 +28,7 @@ func (adaptor *ShiftAdaptor) Insert(
 	shiftModel models.ShiftModel,
 ) (*int64, error) {
 	queryStatement := `
-    INSERT INTO @Table(date, from_timestamp, to_timestamp) VALUES (@Date, @FromTimestamp, @ToTimestamp);
+    INSERT INTO @Table(from_timestamp, to_timestamp) VALUES ( @FromTimestamp, @ToTimestamp);
     select isNull(SCOPE_IDENTITY(), -1);
    `
 
@@ -40,7 +40,6 @@ func (adaptor *ShiftAdaptor) Insert(
 
 	newRecord := query.QueryRowContext(ctx,
 		sql.Named("Table", shiftDetailsTableName),
-		sql.Named("Date", shiftModel.DateTimestamp),
 		sql.Named("FromTimestamp", shiftModel.FromTimestamp),
 		sql.Named("ToTimestamp", shiftModel.ToTimestamp),
 	)
@@ -76,12 +75,13 @@ func (adaptor *ShiftAdaptor) GetShifts(
 	date int64,
 ) ([]models.ShiftModel, error) {
 	queryStatement := `
-    SELECT id, date, from_timestamp, to_timestamp, status FROM @Table WHERE date = @Date AND status = @Status ORDER BY from_timestamp ASC;
+    SELECT id, from_timestamp, to_timestamp, status FROM @Table WHERE date = @Date AND status = @Status ORDER BY from_timestamp ASC;
    `
 
 	query, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", workerShiftDetailsTableName),
+		sql.Named("Table", shiftDetailsTableName),
+		sql.Named("Date", date),
 		sql.Named("Status", domain.EntityStatusActive),
 	)
 	if err != nil {
@@ -91,11 +91,37 @@ func (adaptor *ShiftAdaptor) GetShifts(
 	defer query.Close()
 	for query.Next() {
 		shift := models.ShiftModel{}
-		err = query.Scan(&shift.ID, &shift.DateTimestamp, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
+		err = query.Scan(&shift.ID, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
 		if err != nil {
 			return nil, err
 		}
 		shifts = append(shifts, shift)
 	}
 	return shifts, nil
+}
+
+func (adaptor *ShiftAdaptor) GetShiftByID(
+	ctx context.Context,
+	shiftID domain.SqlID,
+) (*models.ShiftModel, error) {
+	queryStatement := `
+    SELECT id, from_timestamp, to_timestamp, status FROM @Table WHERE shift_id = @ShiftID;
+   `
+
+	query, err := adaptor.sqlHandler.QueryContext(ctx,
+		queryStatement,
+		sql.Named("Table", shiftDetailsTableName),
+		sql.Named("ShiftID", shiftID),
+		sql.Named("Status", domain.EntityStatusActive),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer query.Close()
+	shift := models.ShiftModel{}
+	err = query.Scan(&shift.ID, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
+	if err != nil {
+		return nil, err
+	}
+	return &shift, nil
 }

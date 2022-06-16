@@ -77,6 +77,7 @@ func (entity *UpdateWorkerRequestDTO) ToUpdateWorkerDTO() domain.UpdateWorkerDTO
 
 type AddWorkerShiftRequestDTO struct {
 	WorkerID domain.SqlID        `json:"worker_id" validate:"required"`
+	Date     int64               `json:"date" validate:"required"`
 	ShiftID  domain.SqlID        `json:"shift_id" validate:"required"`
 	Status   domain.EntityStatus `json:"status" validate:"required"`
 }

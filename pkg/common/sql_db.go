@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	_ "github.com/lib/pq"
+
 	"github.com/akhi19/work_planner/configs"
 )
 
@@ -16,12 +18,15 @@ func InitializeConnection(config configs.Configuration) {
 	lockMutex.Lock()
 	defer lockMutex.Unlock()
 	if sqlHandler == nil {
+		host := config.SqlConfig.Host
 		user := config.SqlConfig.User
 		password := config.SqlConfig.Password
 		database := config.SqlConfig.Database
 		port := config.SqlConfig.Port
-		connectionString := fmt.Sprintf("user id=%s;password=%s;port=%s;database=%s", user, password, port, database)
-		handler, connectionError := sql.Open("mssql", connectionString)
+		connectionString := fmt.Sprintf("host=%s port=%s user=%s "+
+			"password=%s dbname=%s sslmode=disable",
+			host, port, user, password, database)
+		handler, connectionError := sql.Open("postgres", connectionString)
 		if connectionError != nil {
 			//Panic : since no point starting application
 			panic(fmt.Errorf("error opening database: %v", connectionError))

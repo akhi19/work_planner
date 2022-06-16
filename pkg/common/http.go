@@ -11,6 +11,7 @@ type Code int
 const (
 	serverErrorCode  Code = 500
 	paramMissingCode Code = 400
+	BadRequestCode   Code = 404
 )
 
 const (
@@ -40,6 +41,14 @@ func InternalServerError() error {
 		HttpStatusCode: http.StatusInternalServerError,
 		Message:        "Something Went Wrong",
 		Code:           serverErrorCode,
+	}
+}
+
+func BadRequest(code Code, msg string) error {
+	return &Entity{
+		HttpStatusCode: http.StatusBadRequest,
+		Message:        msg,
+		Code:           code,
 	}
 }
 

@@ -23,10 +23,26 @@ type IWorkerShift interface {
 		id domain.SqlID,
 	) error
 
+	DeleteUsingWorkerID(
+		ctx context.Context,
+		workerID domain.SqlID,
+	) error
+
+	DeleteUsingShiftID(
+		ctx context.Context,
+		shiftID domain.SqlID,
+	) error
+
 	GetFreeWorkers(
 		ctx context.Context,
 		date int64,
 	) ([]domain.WorkerDTO, error)
+
+	GetWorkerFromShift(
+		ctx context.Context,
+		workerID domain.SqlID,
+		date int64,
+	) (*domain.SqlID, error)
 
 	GetWorkersOccupied(
 		ctx context.Context,

@@ -17,8 +17,13 @@ type IShift interface {
 		id domain.SqlID,
 	) error
 
-	GetShift(
+	GetShifts(
 		ctx context.Context,
 		date int64,
 	) ([]domain.ShiftDTO, error)
+
+	GetShiftByID(
+		ctx context.Context,
+		shiftID domain.SqlID,
+	) (*domain.ShiftDTO, error)
 }

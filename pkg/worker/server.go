@@ -15,10 +15,12 @@ func NewHttpServer(
 	router *mux.Router,
 	workerContainer repository.WorkerContainer,
 	workerShiftContainer repository.WorkerShiftContainer,
+	shiftContainer repository.ShiftContainer,
 ) {
 	repositoryAdaptor := adaptors.NewRepositoryAdaptor(
 		workerContainer,
 		workerShiftContainer,
+		shiftContainer,
 	)
 
 	clientPort := ports.NewClientPort(
