@@ -89,7 +89,7 @@ func (adaptor *WorkerShiftAdaptor) Delete(
 	return err
 }
 
-func (adaptor *WorkerShiftAdaptor) GetShiftWorkers(
+func (adaptor *WorkerShiftAdaptor) GetWorkersOccupied(
 	ctx context.Context,
 	date int64,
 ) ([]models.WorkerModel, error) {

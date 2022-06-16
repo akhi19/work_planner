@@ -28,7 +28,7 @@ type IWorkerShift interface {
 		date int64,
 	) ([]domain.WorkerDTO, error)
 
-	GetShiftWorkers(
+	GetWorkersOccupied(
 		ctx context.Context,
 		date int64,
 	) ([]domain.WorkerDTO, error)

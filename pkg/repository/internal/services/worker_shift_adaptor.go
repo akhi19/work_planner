@@ -84,11 +84,11 @@ func (service *WorkerShiftService) GetFreeWorkers(
 	return workerDTOs, nil
 }
 
-func (service *WorkerShiftService) GetShiftWorkers(
+func (service *WorkerShiftService) GetWorkersOccupied(
 	ctx context.Context,
 	date int64,
 ) ([]domain.WorkerDTO, error) {
-	freeWorkers, err := service.adaptor.GetShiftWorkers(
+	freeWorkers, err := service.adaptor.GetWorkersOccupied(
 		ctx,
 		date,
 	)

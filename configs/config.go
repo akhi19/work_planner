@@ -10,8 +10,9 @@ type SqlConfig struct {
 }
 
 type Configuration struct {
-	Port      string
-	SqlConfig SqlConfig
+	Port        string
+	LogFilePath string
+	SqlConfig   SqlConfig
 }
 
 var config Configuration
@@ -25,5 +26,10 @@ func init() {
 			Port:     os.Getenv("MSSQL_DB_PORT"),
 			Database: os.Getenv("MSSQL_DB_NAME"),
 		},
+		LogFilePath: "./log",
 	}
+}
+
+func GetConfig() Configuration {
+	return config
 }
