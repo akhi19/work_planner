@@ -53,7 +53,7 @@ func (adaptor *WorkerAdaptor) Update(
 	id domain.SqlID,
 	updateModel models.UpdateWorkerModel,
 ) error {
-	queryStatement := fmt.Sprintf(`UPDATE %s SET name = '%s', phone = '%s' WHERE id = %v;`,
+	queryStatement := fmt.Sprintf(`UPDATE %s SET name = '%s', phone = %v WHERE id = %v;`,
 		workerDetailsTableName,
 		updateModel.Name,
 		updateModel.Phone,

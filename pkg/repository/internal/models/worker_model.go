@@ -7,7 +7,7 @@ import (
 type WorkerModel struct {
 	ID     domain.SqlID
 	Name   string
-	Phone  int64
+	Phone  string
 	Email  string
 	Status domain.EntityStatus
 }

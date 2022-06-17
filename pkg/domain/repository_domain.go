@@ -4,7 +4,7 @@ type WorkerDTO struct {
 	ID     SqlID
 	Name   string
 	Email  string
-	Phone  int64
+	Phone  string
 	Status EntityStatus
 }
 

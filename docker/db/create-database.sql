@@ -12,8 +12,8 @@ BEGIN;
         id SERIAL PRIMARY KEY,
         name varchar(200),
         email varchar(200) UNIQUE,
-        phone INTEGER,
-        status varchar(100),
+        phone varchar(20),
+        status varchar(100)
     );
 
     CREATE TABLE IF NOT EXISTS worker_shift_details (

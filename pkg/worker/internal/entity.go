@@ -13,9 +13,9 @@ import (
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 
 type AddWorkerRequestDTO struct {
-	Name  string `json:"name" validate:"required, max=200"`
+	Name  string `json:"name" validate:"required"`
 	Email string `json:"email" validate:"required"`
-	Phone int64  `json:"phone" validate:"required,min=10,max=10"`
+	Phone string `json:"phone" validate:"required"`
 }
 
 func (entity *AddWorkerRequestDTO) Populate(
@@ -53,8 +53,8 @@ func (entity *AddWorkerRequestDTO) ToWorkerDTO() domain.WorkerDTO {
 }
 
 type UpdateWorkerRequestDTO struct {
-	Name  string `json:"name" validate:"required,max=200"`
-	Phone string `json:"phone" validate:"required,min=10,max=10"`
+	Name  string `json:"name" validate:"required"`
+	Phone string `json:"phone" validate:"required"`
 }
 
 func (entity *UpdateWorkerRequestDTO) Populate(

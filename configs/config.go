@@ -20,10 +20,10 @@ func init() {
 	config = Configuration{
 		Port: "8080",
 		SqlConfig: SqlConfig{
-			Host:     "localhost",
+			Host:     "postgres",
 			User:     "postgres",
 			Password: "postgres",
-			Port:     "5438",
+			Port:     "5432",
 			Database: "planner",
 		},
 		LogFilePath: "./log",

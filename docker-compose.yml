@@ -1,5 +1,9 @@
 version: '3.7'
 services:
+    work_planner:
+        build: ./
+        ports:
+          - 8080:8080
     postgres:
         image: postgres:10.5
         restart: always
