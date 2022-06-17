@@ -1,11 +1,11 @@
 package domain
 
 type WorkerDTO struct {
-	ID     SqlID
-	Name   string
-	Email  string
-	Phone  string
-	Status EntityStatus
+	ID     SqlID        `json:"id"`
+	Name   string       `json:"name"`
+	Email  string       `json:"email"`
+	Phone  string       `json:"phone"`
+	Status EntityStatus `json:"status"`
 }
 
 type UpdateWorkerDTO struct {
@@ -14,11 +14,11 @@ type UpdateWorkerDTO struct {
 }
 
 type WorkerShiftDTO struct {
-	ID       SqlID
-	WorkerID SqlID
-	ShiftID  SqlID
-	Date     int64
-	Status   EntityStatus
+	ID       SqlID        `json:"id"`
+	WorkerID SqlID        `json:"worker_id"`
+	ShiftID  SqlID        `json:"shift_id"`
+	Date     int64        `json:"date"`
+	Status   EntityStatus `json:"status"`
 }
 
 type UpdateWorkerShiftDTO struct {
@@ -27,18 +27,18 @@ type UpdateWorkerShiftDTO struct {
 }
 
 type ShiftDTO struct {
-	ID            SqlID
-	FromTimestamp int64
-	ToTimestamp   int64
-	Status        EntityStatus
+	ID       SqlID        `json:"id"`
+	FromTime int64        `json:"from_time"`
+	ToTime   int64        `json:"to_time"`
+	Status   EntityStatus `json:"status"`
 }
 
 type WorkerOccupiedDTO struct {
-	ID       SqlID
-	ShiftID  SqlID
-	WorkerID SqlID
-	Name     string
-	Email    string
-	Phone    string
-	Status   EntityStatus
+	ID       SqlID        `json:"id"`
+	ShiftID  SqlID        `json:"shift_id"`
+	WorkerID SqlID        `json:"worker_id"`
+	Name     string       `json:"name"`
+	Email    string       `json:"email"`
+	Phone    string       `json:"phone"`
+	Status   EntityStatus `json:"status"`
 }

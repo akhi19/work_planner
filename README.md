@@ -23,4 +23,5 @@ docker-compose up --build
 ## Constraints
 1. Only soft delete support.
 2. Worker email should be unique.
+3. For flexibilty purpose, have not hard coded shifts but provided an API to add/delete/get shifts
 

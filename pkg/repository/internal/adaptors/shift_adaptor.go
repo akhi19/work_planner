@@ -30,8 +30,8 @@ func (adaptor *ShiftAdaptor) Insert(
 ) error {
 	queryStatement := fmt.Sprintf(`INSERT INTO %s(from_time, to_time, status) VALUES (%v, %v, '%s');`,
 		shiftDetailsTableName,
-		shiftModel.FromTimestamp,
-		shiftModel.ToTimestamp,
+		shiftModel.FromTime,
+		shiftModel.ToTime,
 		shiftModel.Status,
 	)
 
@@ -78,7 +78,7 @@ func (adaptor *ShiftAdaptor) GetShiftDetails(
 	defer query.Close()
 	for query.Next() {
 		shift := models.ShiftModel{}
-		err = query.Scan(&shift.ID, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
+		err = query.Scan(&shift.ID, &shift.FromTime, &shift.ToTime, &shift.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +108,7 @@ func (adaptor *ShiftAdaptor) GetShiftByID(
 		return nil, nil
 	}
 	shift := models.ShiftModel{}
-	err = query.Scan(&shift.ID, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
+	err = query.Scan(&shift.ID, &shift.FromTime, &shift.ToTime, &shift.Status)
 	if err != nil {
 		return nil, err
 	}
