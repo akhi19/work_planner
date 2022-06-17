@@ -19,3 +19,6 @@ docker-compose up --build
 6. Click Import
 7. You can now start hitting API's from the imported collection
 
+## Sample test case file
+### ./pkg/worker/internal/services/worker_command_service_test.go
+
