@@ -1,8 +1,6 @@
 # work_planner
 
 ## Steps to run
-
-
 1. Install docker by following steps mentioned here: https://docs.docker.com/engine/install/
 2. cd to the repository and run the following command
 
@@ -21,4 +19,8 @@ docker-compose up --build
 
 ## Sample test case file
 ### ./pkg/worker/internal/services/worker_command_service_test.go
+
+## Constraints
+1. Only soft delete support.
+2. EmailID should be unique.
 
