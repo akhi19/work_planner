@@ -22,5 +22,5 @@ docker-compose up --build
 
 ## Constraints
 1. Only soft delete support.
-2. EmailID should be unique.
+2. Worker email should be unique.
 
