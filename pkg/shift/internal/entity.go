@@ -9,8 +9,8 @@ import (
 )
 
 type AddShiftRequestDTO struct {
-	FromTimestamp *int64 `json:"from_timestamp" validate:"required,min=0,max=24"`
-	ToTimestamp   *int64 `json:"to_timestamp" validate:"required,min=0,max=24"`
+	FromTimestamp *int64 `json:"from_time" validate:"required,min=0,max=24"`
+	ToTimestamp   *int64 `json:"to_time" validate:"required,min=0,max=24"`
 }
 
 func (entity *AddShiftRequestDTO) Populate(
