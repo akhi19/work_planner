@@ -23,20 +23,19 @@ func NewWorkerShiftService(
 func (service *WorkerShiftService) Insert(
 	ctx context.Context,
 	workerShiftDTO domain.WorkerShiftDTO,
-) (*domain.SqlID, error) {
+) error {
 
 	workerShiftModel := models.WorkerShiftModel{}
 	workerShiftModel.FromWorkerShiftDTO(workerShiftDTO)
 
-	id, err := service.adaptor.Insert(
+	err := service.adaptor.Insert(
 		ctx,
 		workerShiftModel,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	sqlID := domain.SqlID(*id)
-	return &sqlID, nil
+	return nil
 }
 
 func (service *WorkerShiftService) Update(
@@ -80,7 +79,7 @@ func (service *WorkerShiftService) DeleteUsingShiftID(
 	ctx context.Context,
 	shiftID domain.SqlID,
 ) error {
-	return service.adaptor.DeleteUsingWorkerID(
+	return service.adaptor.DeleteUsingShiftID(
 		ctx,
 		shiftID,
 	)
@@ -107,19 +106,19 @@ func (service *WorkerShiftService) GetFreeWorkers(
 func (service *WorkerShiftService) GetWorkersOccupied(
 	ctx context.Context,
 	date int64,
-) ([]domain.WorkerDTO, error) {
-	freeWorkers, err := service.adaptor.GetWorkersOccupied(
+) ([]domain.WorkerOccupiedDTO, error) {
+	occupiedWorkers, err := service.adaptor.GetWorkersOccupied(
 		ctx,
 		date,
 	)
 	if err != nil {
 		return nil, err
 	}
-	workerDTOs := make([]domain.WorkerDTO, len(freeWorkers))
-	for i, worker := range freeWorkers {
-		workerDTOs[i] = worker.ToWorkerDTO()
+	workerOccupiedDTOs := make([]domain.WorkerOccupiedDTO, len(occupiedWorkers))
+	for i, worker := range occupiedWorkers {
+		workerOccupiedDTOs[i] = worker.ToWorkerOccupiedDTO()
 	}
-	return workerDTOs, nil
+	return workerOccupiedDTOs, nil
 }
 
 func (service *WorkerShiftService) GetWorkerFromShift(

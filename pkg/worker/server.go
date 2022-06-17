@@ -65,7 +65,7 @@ func NewHttpServer(
 	router.HandleFunc(
 		"/workers-shift/{id}",
 		common.HttpRequestHandler(
-			clientPort.DeleteWorker,
+			clientPort.DeleteWorkerShift,
 		),
 	).Methods(http.MethodDelete)
 

@@ -3,15 +3,19 @@ package internal
 import (
 	"encoding/json"
 	"io"
+	"regexp"
+	"time"
 
 	"github.com/akhi19/work_planner/pkg/common"
 	"github.com/akhi19/work_planner/pkg/domain"
 )
 
+var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+
 type AddWorkerRequestDTO struct {
-	Name  string `json:"name" validate:"required"`
+	Name  string `json:"name" validate:"required, max=200"`
 	Email string `json:"email" validate:"required"`
-	Phone string `json:"phone" validate:"required"`
+	Phone int64  `json:"phone" validate:"required,min=10,max=10"`
 }
 
 func (entity *AddWorkerRequestDTO) Populate(
@@ -31,6 +35,11 @@ func (entity *AddWorkerRequestDTO) Populate(
 			common.InvalidRequestMsg,
 		)
 	}
+	if !emailRegex.MatchString(entity.Email) {
+		return common.ValidationError(
+			"Please provide valid mail",
+		)
+	}
 	return nil
 }
 
@@ -44,8 +53,8 @@ func (entity *AddWorkerRequestDTO) ToWorkerDTO() domain.WorkerDTO {
 }
 
 type UpdateWorkerRequestDTO struct {
-	Name  string `json:"name" validate:"required"`
-	Phone string `json:"phone" validate:"required"`
+	Name  string `json:"name" validate:"required,max=200"`
+	Phone string `json:"phone" validate:"required,min=10,max=10"`
 }
 
 func (entity *UpdateWorkerRequestDTO) Populate(
@@ -77,13 +86,14 @@ func (entity *UpdateWorkerRequestDTO) ToUpdateWorkerDTO() domain.UpdateWorkerDTO
 
 type AddWorkerShiftRequestDTO struct {
 	WorkerID domain.SqlID        `json:"worker_id" validate:"required"`
-	Date     int64               `json:"date" validate:"required"`
+	Date     int64               `json:"date"`
 	ShiftID  domain.SqlID        `json:"shift_id" validate:"required"`
-	Status   domain.EntityStatus `json:"status" validate:"required"`
+	Status   domain.EntityStatus `json:"status"`
 }
 
 func (entity *AddWorkerShiftRequestDTO) Populate(
 	body io.ReadCloser,
+	time time.Time,
 ) error {
 	decoder := json.NewDecoder(body)
 	err := decoder.Decode(entity)
@@ -99,6 +109,8 @@ func (entity *AddWorkerShiftRequestDTO) Populate(
 			common.InvalidRequestMsg,
 		)
 	}
+	entity.Date = time.UnixMilli()
+	entity.Status = domain.EntityStatusActive
 	return nil
 }
 
@@ -107,6 +119,7 @@ func (entity *AddWorkerShiftRequestDTO) ToWorkerShiftDTO() domain.WorkerShiftDTO
 		WorkerID: entity.WorkerID,
 		ShiftID:  entity.ShiftID,
 		Status:   domain.EntityStatusActive,
+		Date:     entity.Date,
 	}
 }
 

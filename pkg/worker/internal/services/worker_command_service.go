@@ -28,7 +28,7 @@ func (service *WorkerCommandService) AddWorker(
 ) error {
 	log := common.GetLogger().WithFields(logrus.Fields{"function": "AddWorker"})
 	workerDTO := addWorkerRequest.ToWorkerDTO()
-	_, err := service.repositoryAdaptor.WorkerContainer().IWorker.Insert(
+	err := service.repositoryAdaptor.WorkerContainer().IWorker.Insert(
 		ctx,
 		workerDTO,
 	)
@@ -87,7 +87,7 @@ func (service *WorkerCommandService) AddWorkerShift(
 	ctx context.Context,
 	addWorkerShiftRequest internal.AddWorkerShiftRequestDTO,
 ) error {
-	log := common.GetLogger().WithFields(logrus.Fields{"function": "UpdateWorker"})
+	log := common.GetLogger().WithFields(logrus.Fields{"function": "AddWorkerShift"})
 	workerShiftDTO := addWorkerShiftRequest.ToWorkerShiftDTO()
 
 	shiftDTO, err := service.repositoryAdaptor.ShiftContainer().IShift.GetShiftByID(
@@ -103,6 +103,22 @@ func (service *WorkerCommandService) AddWorkerShift(
 		return common.BadRequest(
 			common.BadRequestCode,
 			"No shift found",
+		)
+	}
+
+	workerDTO, err := service.repositoryAdaptor.WorkerContainer().IWorker.GetWorkerByID(
+		ctx,
+		addWorkerShiftRequest.WorkerID,
+	)
+	if err != nil {
+		log.Error(err.Error())
+		return common.InternalServerError()
+	}
+	if workerDTO == nil {
+		log.Error("no worker found")
+		return common.BadRequest(
+			common.BadRequestCode,
+			"No worker found",
 		)
 	}
 
@@ -123,7 +139,7 @@ func (service *WorkerCommandService) AddWorkerShift(
 		)
 	}
 
-	_, err = service.repositoryAdaptor.WorkerShiftContainer().IWorkerShift.Insert(
+	err = service.repositoryAdaptor.WorkerShiftContainer().IWorkerShift.Insert(
 		ctx,
 		workerShiftDTO,
 	)

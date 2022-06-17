@@ -21,9 +21,9 @@ func init() {
 		Port: "8080",
 		SqlConfig: SqlConfig{
 			Host:     "localhost",
-			User:     "test",
-			Password: "123",
-			Port:     "55000",
+			User:     "postgres",
+			Password: "postgres",
+			Port:     "5438",
 			Database: "planner",
 		},
 		LogFilePath: "./log",

@@ -59,7 +59,7 @@ type iWorkerQueryService interface {
 	GetWorkersOccupied(
 		ctx context.Context,
 		date int64,
-	) ([]domain.WorkerDTO, error)
+	) ([]domain.WorkerOccupiedDTO, error)
 }
 
 func getWorkerCommandService(

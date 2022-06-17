@@ -158,9 +158,22 @@ func (port *ClientPort) AddWorkerShift(
 	responseWriter http.ResponseWriter,
 	request *http.Request,
 ) {
+	queryParams := request.URL.Query()
+	dateString := queryParams.Get("date")
+
+	time, err := common.GetParsedDate(dateString, time.UTC.String())
+	if err != nil {
+		common.SendHttpError(
+			request.Context(),
+			responseWriter,
+			err,
+		)
+		return
+	}
 	var addWorkerShiftRequestDTO internal.AddWorkerShiftRequestDTO
-	err := addWorkerShiftRequestDTO.Populate(
+	err = addWorkerShiftRequestDTO.Populate(
 		request.Body,
+		*time,
 	)
 	if err != nil {
 		common.SendHttpError(

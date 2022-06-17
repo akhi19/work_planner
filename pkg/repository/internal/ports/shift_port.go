@@ -10,16 +10,15 @@ type IShift interface {
 	Insert(
 		ctx context.Context,
 		shiftDTO domain.ShiftDTO,
-	) (*domain.SqlID, error)
+	) error
 
 	Delete(
 		ctx context.Context,
 		id domain.SqlID,
 	) error
 
-	GetShifts(
+	GetShiftDetails(
 		ctx context.Context,
-		date int64,
 	) ([]domain.ShiftDTO, error)
 
 	GetShiftByID(

@@ -4,7 +4,7 @@ type WorkerDTO struct {
 	ID     SqlID
 	Name   string
 	Email  string
-	Phone  string
+	Phone  int64
 	Status EntityStatus
 }
 
@@ -31,4 +31,14 @@ type ShiftDTO struct {
 	FromTimestamp int64
 	ToTimestamp   int64
 	Status        EntityStatus
+}
+
+type WorkerOccupiedDTO struct {
+	ID       SqlID
+	ShiftID  SqlID
+	WorkerID SqlID
+	Name     string
+	Email    string
+	Phone    string
+	Status   EntityStatus
 }

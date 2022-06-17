@@ -3,6 +3,7 @@ package adaptors
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/akhi19/work_planner/pkg/common"
 	"github.com/akhi19/work_planner/pkg/domain"
@@ -26,33 +27,25 @@ func NewWorkerAdaptor() *WorkerAdaptor {
 func (adaptor *WorkerAdaptor) Insert(
 	ctx context.Context,
 	workerModel models.WorkerModel,
-) (*int64, error) {
-	queryStatement := `
-    INSERT INTO @Table(name, email, phone, status ) VALUES (@Name, @Email, @Phone, @Status);
-    select isNull(SCOPE_IDENTITY(), -1);
-   `
+) error {
+	queryStatement := fmt.Sprintf(`INSERT INTO %s(name, email, phone, status ) VALUES ('%s', '%s', %v, '%s');`,
+		workerDetailsTableName,
+		workerModel.Name,
+		workerModel.Email,
+		workerModel.Phone,
+		workerModel.Status,
+	)
 
-	query, err := adaptor.sqlHandler.Prepare(queryStatement)
+	query, err := adaptor.sqlHandler.QueryContext(
+		ctx,
+		queryStatement,
+	)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer query.Close()
 
-	newRecord := query.QueryRowContext(ctx,
-		sql.Named("Table", workerDetailsTableName),
-		sql.Named("Name", workerModel.Name),
-		sql.Named("Email", workerModel.Email),
-		sql.Named("Phone", workerModel.Phone),
-		sql.Named("Status", workerModel.Status),
-	)
-
-	var newID int64
-	err = newRecord.Scan(&newID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &newID, nil
+	return nil
 }
 
 func (adaptor *WorkerAdaptor) Update(
@@ -60,16 +53,15 @@ func (adaptor *WorkerAdaptor) Update(
 	id domain.SqlID,
 	updateModel models.UpdateWorkerModel,
 ) error {
-	queryStatement := `
-    UPDATE @Table SET name = @Name, phone = @Phone WHERE id = @ID;
-   `
+	queryStatement := fmt.Sprintf(`UPDATE %s SET name = '%s', phone = '%s' WHERE id = %v;`,
+		workerDetailsTableName,
+		updateModel.Name,
+		updateModel.Phone,
+		id,
+	)
 
-	_, err := adaptor.sqlHandler.ExecContext(ctx,
+	_, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", workerDetailsTableName),
-		sql.Named("Name", updateModel.Name),
-		sql.Named("Phone", updateModel.Phone),
-		sql.Named("ID", id),
 	)
 	return err
 }
@@ -78,15 +70,14 @@ func (adaptor *WorkerAdaptor) Delete(
 	ctx context.Context,
 	id domain.SqlID,
 ) error {
-	queryStatement := `
-	UPDATE @Table SET status = @Status WHERE id = @ID;
-   `
+	queryStatement := fmt.Sprintf(`UPDATE %s SET status = '%s' WHERE id = %v;`,
+		workerDetailsTableName,
+		domain.EntityStatusInactive,
+		id,
+	)
 
-	_, err := adaptor.sqlHandler.ExecContext(ctx,
+	_, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", workerDetailsTableName),
-		sql.Named("Status", domain.EntityStatusInactive),
-		sql.Named("ID", id),
 	)
 	return err
 }
@@ -94,13 +85,13 @@ func (adaptor *WorkerAdaptor) Delete(
 func (adaptor *WorkerAdaptor) GetWorkers(
 	ctx context.Context,
 ) ([]models.WorkerModel, error) {
-	queryStatement := `
-    SELECT id, name, email, phone, status FROM @Table WHERE status = @Status;
-   `
+	queryStatement := fmt.Sprintf(`SELECT id, name, email, phone, status FROM %s WHERE status='%s' ORDER BY name ASC;`,
+		workerDetailsTableName,
+		domain.EntityStatusActive,
+	)
+
 	query, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", workerDetailsTableName),
-		sql.Named("Status", domain.EntityStatusActive),
 	)
 	if err != nil {
 		return nil, err
@@ -116,4 +107,32 @@ func (adaptor *WorkerAdaptor) GetWorkers(
 		workers = append(workers, worker)
 	}
 	return workers, nil
+}
+
+func (adaptor *WorkerAdaptor) GetWorkerByID(
+	ctx context.Context,
+	workerID domain.SqlID,
+) (*models.WorkerModel, error) {
+	queryStatement := fmt.Sprintf(`SELECT id, name, email, phone, status FROM %s WHERE id = %v AND status = '%s';`,
+		workerDetailsTableName,
+		workerID,
+		domain.EntityStatusActive,
+	)
+
+	query, err := adaptor.sqlHandler.QueryContext(ctx,
+		queryStatement,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer query.Close()
+	if !query.Next() {
+		return nil, nil
+	}
+	worker := models.WorkerModel{}
+	err = query.Scan(&worker.ID, &worker.Name, &worker.Email, &worker.Phone, &worker.Status)
+	if err != nil {
+		return nil, err
+	}
+	return &worker, nil
 }

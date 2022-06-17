@@ -23,20 +23,19 @@ func NewWorkerService(
 func (service *WorkerService) Insert(
 	ctx context.Context,
 	workerDTO domain.WorkerDTO,
-) (*domain.SqlID, error) {
+) error {
 
 	workerModel := models.WorkerModel{}
 	workerModel.FromWorkerDTO(workerDTO)
 
-	id, err := service.adaptor.Insert(
+	err := service.adaptor.Insert(
 		ctx,
 		workerModel,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	sqlID := domain.SqlID(*id)
-	return &sqlID, nil
+	return nil
 }
 
 func (service *WorkerService) Update(
@@ -80,4 +79,22 @@ func (service *WorkerService) GetWorkers(
 		workerDTOs[i] = worker.ToWorkerDTO()
 	}
 	return workerDTOs, nil
+}
+
+func (service *WorkerService) GetWorkerByID(
+	ctx context.Context,
+	workerID domain.SqlID,
+) (*domain.WorkerDTO, error) {
+	worker, err := service.adaptor.GetWorkerByID(
+		ctx,
+		workerID,
+	)
+	if worker == nil {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	workerDTO := worker.ToWorkerDTO()
+	return &workerDTO, nil
 }

@@ -3,7 +3,6 @@ package ports
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 
@@ -108,22 +107,9 @@ func (port *ClientPort) GetShifts(
 	responseWriter http.ResponseWriter,
 	request *http.Request,
 ) {
-	queryParams := request.URL.Query()
-	dateString := queryParams.Get("date")
-
-	time, err := common.GetParsedDate(dateString, time.UTC.String())
-	if err != nil {
-		common.SendHttpError(
-			request.Context(),
-			responseWriter,
-			err,
-		)
-		return
-	}
 
 	workers, err := port.iShiftQueryService.GetShifts(
 		request.Context(),
-		time.UnixMilli(),
 	)
 	if err != nil {
 		common.SendHttpError(

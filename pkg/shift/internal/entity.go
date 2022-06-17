@@ -9,8 +9,8 @@ import (
 )
 
 type AddShiftRequestDTO struct {
-	FromTimestamp int64 `json:"from_timestamp" validate:"required"`
-	ToTimestamp   int64 `json:"to_timestamp" validate:"required"`
+	FromTimestamp *int64 `json:"from_timestamp" validate:"required,min=0,max=24"`
+	ToTimestamp   *int64 `json:"to_timestamp" validate:"required,min=0,max=24"`
 }
 
 func (entity *AddShiftRequestDTO) Populate(
@@ -35,8 +35,8 @@ func (entity *AddShiftRequestDTO) Populate(
 
 func (entity *AddShiftRequestDTO) ToShiftDTO() domain.ShiftDTO {
 	return domain.ShiftDTO{
-		FromTimestamp: entity.FromTimestamp,
-		ToTimestamp:   entity.ToTimestamp,
+		FromTimestamp: *entity.FromTimestamp,
+		ToTimestamp:   *entity.ToTimestamp,
 		Status:        domain.EntityStatusActive,
 	}
 }

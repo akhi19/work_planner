@@ -28,7 +28,7 @@ func (service *ShiftCommandService) AddShift(
 ) error {
 	log := common.GetLogger().WithFields(logrus.Fields{"function": "AddShift"})
 	shiftDTO := addShiftRequestDTO.ToShiftDTO()
-	_, err := service.repositoryAdaptor.ShiftContainer().IShift.Insert(
+	err := service.repositoryAdaptor.ShiftContainer().IShift.Insert(
 		ctx,
 		shiftDTO,
 	)

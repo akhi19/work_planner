@@ -10,7 +10,7 @@ type IWorkerShift interface {
 	Insert(
 		ctx context.Context,
 		workerShiftDTO domain.WorkerShiftDTO,
-	) (*domain.SqlID, error)
+	) error
 
 	Update(
 		ctx context.Context,
@@ -47,5 +47,5 @@ type IWorkerShift interface {
 	GetWorkersOccupied(
 		ctx context.Context,
 		date int64,
-	) ([]domain.WorkerDTO, error)
+	) ([]domain.WorkerOccupiedDTO, error)
 }

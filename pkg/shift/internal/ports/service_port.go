@@ -27,7 +27,6 @@ type iShiftCommandService interface {
 type iShiftQueryService interface {
 	GetShifts(
 		ctx context.Context,
-		date int64,
 	) ([]domain.ShiftDTO, error)
 }
 

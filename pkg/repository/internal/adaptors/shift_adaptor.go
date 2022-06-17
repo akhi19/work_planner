@@ -3,6 +3,7 @@ package adaptors
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/akhi19/work_planner/pkg/common"
 	"github.com/akhi19/work_planner/pkg/domain"
@@ -26,63 +27,49 @@ func NewShiftAdaptor() *ShiftAdaptor {
 func (adaptor *ShiftAdaptor) Insert(
 	ctx context.Context,
 	shiftModel models.ShiftModel,
-) (*int64, error) {
-	queryStatement := `
-    INSERT INTO @Table(from_timestamp, to_timestamp) VALUES ( @FromTimestamp, @ToTimestamp);
-    select isNull(SCOPE_IDENTITY(), -1);
-   `
-
-	query, err := adaptor.sqlHandler.Prepare(queryStatement)
-	if err != nil {
-		return nil, err
-	}
-	defer query.Close()
-
-	newRecord := query.QueryRowContext(ctx,
-		sql.Named("Table", shiftDetailsTableName),
-		sql.Named("FromTimestamp", shiftModel.FromTimestamp),
-		sql.Named("ToTimestamp", shiftModel.ToTimestamp),
+) error {
+	queryStatement := fmt.Sprintf(`INSERT INTO %s(from_time, to_time, status) VALUES (%v, %v, '%s');`,
+		shiftDetailsTableName,
+		shiftModel.FromTimestamp,
+		shiftModel.ToTimestamp,
+		shiftModel.Status,
 	)
 
-	var newID int64
-	err = newRecord.Scan(&newID)
+	_, err := adaptor.sqlHandler.ExecContext(ctx,
+		queryStatement,
+	)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return &newID, nil
+	return nil
 }
 
 func (adaptor *ShiftAdaptor) Delete(
 	ctx context.Context,
 	id domain.SqlID,
 ) error {
-	queryStatement := `
-    UPDATE @Table SET status = @Status WHERE id = @ID;
-   `
+	queryStatement := fmt.Sprintf(`UPDATE %s SET status = '%s' WHERE id = %v;`,
+		shiftDetailsTableName,
+		domain.EntityStatusInactive,
+		id,
+	)
 
 	_, err := adaptor.sqlHandler.ExecContext(ctx,
 		queryStatement,
-		sql.Named("Table", shiftDetailsTableName),
-		sql.Named("Status", domain.EntityStatusInactive),
-		sql.Named("ID", id),
 	)
 	return err
 }
 
-func (adaptor *ShiftAdaptor) GetShifts(
+func (adaptor *ShiftAdaptor) GetShiftDetails(
 	ctx context.Context,
-	date int64,
 ) ([]models.ShiftModel, error) {
-	queryStatement := `
-    SELECT id, from_timestamp, to_timestamp, status FROM @Table WHERE date = @Date AND status = @Status ORDER BY from_timestamp ASC;
-   `
+	queryStatement := fmt.Sprintf(`SELECT id, from_time, to_time, status FROM %s WHERE status='%s' ORDER BY from_time ASC;`,
+		shiftDetailsTableName,
+		domain.EntityStatusActive,
+	)
 
 	query, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", shiftDetailsTableName),
-		sql.Named("Date", date),
-		sql.Named("Status", domain.EntityStatusActive),
 	)
 	if err != nil {
 		return nil, err
@@ -104,20 +91,22 @@ func (adaptor *ShiftAdaptor) GetShiftByID(
 	ctx context.Context,
 	shiftID domain.SqlID,
 ) (*models.ShiftModel, error) {
-	queryStatement := `
-    SELECT id, from_timestamp, to_timestamp, status FROM @Table WHERE shift_id = @ShiftID;
-   `
+	queryStatement := fmt.Sprintf(`SELECT id, from_time, to_time, status FROM %s WHERE id = %v AND status = '%s';`,
+		shiftDetailsTableName,
+		shiftID,
+		domain.EntityStatusActive,
+	)
 
 	query, err := adaptor.sqlHandler.QueryContext(ctx,
 		queryStatement,
-		sql.Named("Table", shiftDetailsTableName),
-		sql.Named("ShiftID", shiftID),
-		sql.Named("Status", domain.EntityStatusActive),
 	)
 	if err != nil {
 		return nil, err
 	}
 	defer query.Close()
+	if !query.Next() {
+		return nil, nil
+	}
 	shift := models.ShiftModel{}
 	err = query.Scan(&shift.ID, &shift.FromTimestamp, &shift.ToTimestamp, &shift.Status)
 	if err != nil {

@@ -23,12 +23,10 @@ func NewShiftQueryService(
 
 func (service *ShiftQueryService) GetShifts(
 	ctx context.Context,
-	date int64,
 ) ([]domain.ShiftDTO, error) {
 	log := common.GetLogger().WithFields(logrus.Fields{"function": "GetShifts"})
-	shifts, err := service.repositoryAdaptor.ShiftContainer().IShift.GetShifts(
+	shifts, err := service.repositoryAdaptor.ShiftContainer().IShift.GetShiftDetails(
 		ctx,
-		date,
 	)
 	if err != nil {
 		log.Error(err.Error())

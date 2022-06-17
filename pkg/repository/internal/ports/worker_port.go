@@ -10,7 +10,7 @@ type IWorker interface {
 	Insert(
 		ctx context.Context,
 		workerDTO domain.WorkerDTO,
-	) (*domain.SqlID, error)
+	) error
 
 	Update(
 		ctx context.Context,
@@ -26,4 +26,9 @@ type IWorker interface {
 	GetWorkers(
 		ctx context.Context,
 	) ([]domain.WorkerDTO, error)
+
+	GetWorkerByID(
+		ctx context.Context,
+		workerID domain.SqlID,
+	) (*domain.WorkerDTO, error)
 }

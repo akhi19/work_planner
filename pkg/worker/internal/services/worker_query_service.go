@@ -54,7 +54,7 @@ func (service *WorkerQueryService) GetFreeWorkers(
 func (service *WorkerQueryService) GetWorkersOccupied(
 	ctx context.Context,
 	date int64,
-) ([]domain.WorkerDTO, error) {
+) ([]domain.WorkerOccupiedDTO, error) {
 	log := common.GetLogger().WithFields(logrus.Fields{"function": "GetWorkersOccupied"})
 	workers, err := service.repositoryAdaptor.WorkerShiftContainer().IWorkerShift.GetWorkersOccupied(
 		ctx,

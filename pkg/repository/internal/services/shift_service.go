@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/akhi19/work_planner/pkg/domain"
 	"github.com/akhi19/work_planner/pkg/repository/internal/adaptors"
@@ -24,20 +23,19 @@ func NewShiftService(
 func (service *ShiftService) Insert(
 	ctx context.Context,
 	shiftDTO domain.ShiftDTO,
-) (*domain.SqlID, error) {
+) error {
 
 	shiftModel := models.ShiftModel{}
 	shiftModel.FromShiftDTO(shiftDTO)
 
-	id, err := service.adaptor.Insert(
+	err := service.adaptor.Insert(
 		ctx,
 		shiftModel,
 	)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	sqlID := domain.SqlID(*id)
-	return &sqlID, nil
+	return nil
 }
 
 func (service *ShiftService) Delete(
@@ -51,13 +49,11 @@ func (service *ShiftService) Delete(
 	)
 }
 
-func (service *ShiftService) GetShifts(
+func (service *ShiftService) GetShiftDetails(
 	ctx context.Context,
-	date int64,
 ) ([]domain.ShiftDTO, error) {
-	shifts, err := service.adaptor.GetShifts(
+	shifts, err := service.adaptor.GetShiftDetails(
 		ctx,
-		date,
 	)
 	if err != nil {
 		return nil, err
@@ -77,7 +73,7 @@ func (service *ShiftService) GetShiftByID(
 		ctx,
 		shiftID,
 	)
-	if err == sql.ErrNoRows {
+	if shift == nil {
 		return nil, nil
 	}
 	if err != nil {
