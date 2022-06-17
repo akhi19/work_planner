@@ -1,6 +1,6 @@
 # work_planner
 
-## Steps to run :
+## Steps to run
 
 
 1. Install docker by following steps mentioned here: https://docs.docker.com/engine/install/
